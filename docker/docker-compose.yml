@@ -1,0 +1,61 @@
+version: '2'
+services:
+#  memcached:
+#    image: memcached
+#    container_name: memcached
+
+  lns-data:
+    image: busybox
+    volumes:
+      - ./misc/data:/var/lib/mysql
+
+#  redis:
+#    image: redis
+#    container_name: redis
+
+  lns-mysql:
+    image: mysql
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --explicit_defaults_for_timestamp --sql-mode=""
+    environment:
+      MYSQL_ROOT_PASSWORD: lnsrootpass
+      MYSQL_DATABASE: mysql_database
+      MYSQL_USER: lns
+      MYSQL_PASSWORD: lnspass
+      TZ: "Asia/Tokyo"
+    ports:
+      - "23306:3306"
+    volumes_from:
+      - lns-data
+    volumes:
+      - ./mysql/init/:/docker-entrypoint-initdb.d/
+      - ../dump/:/dump/
+      - ./mysql/conf/:/etc/mysql/conf.d/
+    container_name: lns-mysql
+
+  lns-nginx:
+    build: ./nginx
+    ports:
+      - "28090:80"
+    volumes:
+      - ../source/:/var/www/lns
+      - ../log/:/var/log/lns
+    links:
+      - lns-web
+    container_name: lns-nginx
+
+  lns-web:
+    build: ./php-fpm
+    volumes:
+      - ../source/:/var/www/lns
+      - ../log/:/var/log/lns
+#      - ../webscript/:/script/
+    links:
+      - lns-mysql
+#      - memcached
+#      - redis
+    environment:
+      DATABASE_HOST: 'mysql'
+      DATABASE_NAME: 'mysql_database'
+      DATABASE_USER: 'lns'
+      DATABASE_PASSWORD: 'lnspass'
+    container_name: lns-web
