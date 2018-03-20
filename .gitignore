@@ -3,6 +3,4 @@
 .code/*
 /logs/*
 /www/*
-/docker/dbdata/*
-!/docker/dbdata/Dockerfile
 !.gitkeep
