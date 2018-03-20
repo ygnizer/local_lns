@@ -4,14 +4,14 @@ services:
 #    image: memcached
 #    container_name: memcached
 
+#  redis:
+#    image: redis
+#    container_name: redis
+
   lns-data:
     image: busybox
     volumes:
       - ./misc/data:/var/lib/mysql
-
-#  redis:
-#    image: redis
-#    container_name: redis
 
   lns-mysql:
     image: mysql
@@ -35,7 +35,7 @@ services:
   lns-nginx:
     build: ./nginx
     ports:
-      - "28090:80"
+      - "20080:80"
     volumes:
       - ../source/:/var/www/lns
       - ../log/:/var/log/lns
