@@ -1,7 +1,6 @@
 .DS_Store
 /dump/*
-!/dump/.gitignore
 /log/*
-!/log/.gitignore
 /source/*
-!/source/.gitignore
+/docker/misc/data/*
+!.gitkeep
