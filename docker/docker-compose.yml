@@ -1,5 +1,6 @@
-version: '2'
-services:
+version: "2" # docker-composeのversion2を使用
+services: # 各種サービスの設定
+
 #  memcached:
 #    image: memcached
 #    container_name: memcached
@@ -8,12 +9,13 @@ services:
 #    image: redis
 #    container_name: redis
 
-  lns-data:
-    image: busybox
+  lns-data: # データボリューム用コンテナ、ソースやDBのデータ等開発で生成するものはここにマウント
+    build: ./dbdata
     volumes:
-      - ./misc/data:/var/lib/mysql
+      - ../:/data
+    container_name: lns-data
 
-  lns-mysql:
+  lns-db: # DBストア
     image: mysql
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --explicit_defaults_for_timestamp --sql-mode=""
     environment:
@@ -27,30 +29,18 @@ services:
     volumes_from:
       - lns-data
     volumes:
+      - ./dbdata:/var/lib/mysql
+      - ./dbdata/dump/:/dump/
       - ./mysql/init/:/docker-entrypoint-initdb.d/
-      - ../dump/:/dump/
       - ./mysql/conf/:/etc/mysql/conf.d/
-    container_name: lns-mysql
+    container_name: lns-db
 
-  lns-nginx:
-    build: ./nginx
-    ports:
-      - "20080:80"
-    volumes:
-      - ../source/:/var/www/lns
-      - ../log/:/var/log/lns
+  lns-fpm: # php-fpm: PHPプロセスを実行するコンテナ
+    build: ./fpm
+    volumes_from:
+      - lns-data
     links:
-      - lns-web
-    container_name: lns-nginx
-
-  lns-web:
-    build: ./php-fpm
-    volumes:
-      - ../source/:/var/www/lns
-      - ../log/:/var/log/lns
-#      - ../webscript/:/script/
-    links:
-      - lns-mysql
+      - lns-db
 #      - memcached
 #      - redis
     environment:
@@ -58,4 +48,20 @@ services:
       DATABASE_NAME: 'mysql_database'
       DATABASE_USER: 'lns'
       DATABASE_PASSWORD: 'lnspass'
-    container_name: lns-web
+    container_name: lns-fpm
+
+  lns-nginx: # php-fpmにリバースプロキシする
+    build: ./nginx
+    ports:
+      - "20080:80"
+    volumes_from:
+      - lns-data
+    links:
+      - lns-fpm
+    container_name: lns-nginx
+
+  composer: # composerコマンドを実行するときに都度実行
+    build: ./composer
+    volumes_from:
+      - lns-data
+    container_name: lns-composer

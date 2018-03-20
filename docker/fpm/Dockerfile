@@ -1,16 +1,22 @@
-FROM php:7-fpm
+FROM php:7.1.4-fpm
+LABEL maintainer "ygnizer"
 
 ADD php.ini /usr/local/etc/php/conf.d/php.ini
 
-# for Laravel5
-RUN apt-get update && apt-get install -y \
-        libfreetype6-dev \
-        libjpeg62-turbo-dev \
-        libmcrypt-dev \
-        libpng12-dev \
-    && docker-php-ext-install -j$(nproc) iconv mcrypt mbstring pdo_mysql \
-    && docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ \
-    && docker-php-ext-install -j$(nproc) gd
+RUN apt-get update && \
+  apt-get install -y \
+    libfreetype6-dev \
+    libjpeg62-turbo-dev \
+    libpng12-dev \
+    libmcrypt-dev \
+  && docker-php-ext-install \
+    pdo_mysql \
+    mysqli \
+    mbstring \
+    gd \
+    iconv \
+    mcrypt \
+  && apt-get clean
 
 # いろいろ。
 RUN apt-get install -y \
@@ -27,7 +33,7 @@ RUN apt-get install -y \
         libssl-dev \
         libicu-dev \
         g++ \
-  && docker-php-ext-install mysqli zip opcache
+  && docker-php-ext-install zip opcache
 
 # Install xdebug
 #RUN pecl install xdebug
@@ -46,10 +52,12 @@ RUN curl -fsSL 'https://xdebug.org/files/xdebug-2.4.0.tgz' -o xdebug.tar.gz \
     && docker-php-ext-enable xdebug
 
 # Install timecop
-RUN apt-get install -y git \
- && git clone https://github.com/hnw/php-timecop.git \
+RUN git clone https://github.com/hnw/php-timecop.git \
  && cd php-timecop \
  && phpize \
  && ./configure \
  && make \
  && make install
+
+RUN mkdir -p /data
+VOLUME ["/data"]

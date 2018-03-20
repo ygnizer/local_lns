@@ -1,6 +1,5 @@
 .DS_Store
-/dump/*
-/log/*
-/source/*
-/docker/misc/data/*
+/logs/*
+/www/*
+/docker/dbdata/*
 !.gitkeep
