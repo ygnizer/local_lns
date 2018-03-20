@@ -1,4 +1,6 @@
 .DS_Store
+.code-workspace
+.code/*
 /logs/*
 /www/*
 /docker/dbdata/*

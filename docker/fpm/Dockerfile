@@ -1,8 +1,6 @@
 FROM php:7.1.4-fpm
 LABEL maintainer "ygnizer"
 
-ADD php.ini /usr/local/etc/php/conf.d/php.ini
-
 RUN apt-get update && \
   apt-get install -y \
     libfreetype6-dev \
@@ -25,15 +23,18 @@ RUN apt-get install -y \
         curl \
         vim \
         wget \
-        unzip \
-        zlibc \
-        zlib1g \
-        zlib1g-dev \
-        libxml2-dev \
-        libssl-dev \
-        libicu-dev \
-        g++ \
-  && docker-php-ext-install zip opcache
+  && apt-get clean
+
+#        unzip \
+#        zlibc \
+#        zlib1g \
+#        zlib1g-dev \
+#        libxml2-dev \
+#        libssl-dev \
+#        libicu-dev \
+#        gcc \
+#  && docker-php-ext-install zip opcache \
+#  && apt-get clean
 
 # Install xdebug
 #RUN pecl install xdebug
@@ -58,6 +59,8 @@ RUN git clone https://github.com/hnw/php-timecop.git \
  && ./configure \
  && make \
  && make install
+
+ADD php.ini /usr/local/etc/php/conf.d/php.ini
 
 RUN mkdir -p /data
 VOLUME ["/data"]
