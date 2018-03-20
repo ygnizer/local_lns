@@ -1,6 +1,7 @@
 .DS_Store
 *.code-workspace
 .code/*
+/docker/mysql/data/*
 /logs/*
 /www/*
 !.gitkeep

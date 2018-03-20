@@ -16,8 +16,8 @@ services: # 各種サービスの設定
     container_name: lns-data
 
   lns-db: # DBストア
-    image: mysql
-    command: mysqld --initialize-insecure --character-set-server=utf8 --collation-server=utf8_unicode_ci --explicit_defaults_for_timestamp --sql-mode=""
+    image: mysql:5.6
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --explicit_defaults_for_timestamp --sql-mode=""
     environment:
       MYSQL_ROOT_PASSWORD: lnsrootpass
       MYSQL_DATABASE: mysql_database
